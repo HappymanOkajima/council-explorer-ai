@@ -1,0 +1,10 @@
+openai
+langchain
+pinecone-client
+python-dotenv
+embeddings
+playwright
+streamlit
+streamlit-chat
+tiktoken
+lark
