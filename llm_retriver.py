@@ -1,13 +1,13 @@
 # llm_retriever.py
 
-from langchain.llms import OpenAI
+from langchain_openai import OpenAI
 from langchain.retrievers.self_query.base import SelfQueryRetriever
 from langchain.chains.query_constructor.base import AttributeInfo
-import pinecone
 import os
 from dotenv import load_dotenv
-from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain.vectorstores import Pinecone
+from langchain_openai.embeddings import OpenAIEmbeddings
+from langchain_community.vectorstores import Pinecone
+import pinecone
 
 class LLMRetriever:
     def __init__(self, db=None, llm=None):

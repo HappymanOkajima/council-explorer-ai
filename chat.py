@@ -3,7 +3,7 @@ from uuid import UUID
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
 from dotenv import load_dotenv
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 from langchain.schema import ChatMessage
 from langchain.schema.output import LLMResult
 import streamlit as st
