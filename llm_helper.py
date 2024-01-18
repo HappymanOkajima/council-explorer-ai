@@ -1,6 +1,5 @@
 import os
 from langchain.prompts import PromptTemplate
-import pinecone
 from dotenv import load_dotenv
 from langchain_openai.embeddings import OpenAIEmbeddings
 from langchain_community.vectorstores import Pinecone
