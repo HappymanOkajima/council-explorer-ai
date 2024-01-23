@@ -16,6 +16,7 @@ tiktoken = "*"
 lark = "*"
 langchain-community = "*"
 langchain-openai = "*"
+beautifulsoup4 = "*"
 
 [dev-packages]
 
