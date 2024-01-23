@@ -1,3 +1,5 @@
+# R5_1_2 限定
+# 他の一般質問の場合は、determine_statement を適宜修正すること
 import csv
 
 def determine_statement(number):
