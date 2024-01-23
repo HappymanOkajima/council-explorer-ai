@@ -8,7 +8,18 @@ from urllib.parse import urljoin
 # R5_1_2
 #url = "https://www.kensakusystem.jp/takahama/cgi-bin3/r_Speakers.exe?bnp0cuv0jx8u44iels/R050309A/-1/0//10/1/3:0/50/1//0/0/0"
 # R5_1_3
-url = "https://www.kensakusystem.jp/takahama/cgi-bin3/r_Speakers.exe?bnp0cuv0jx8u44iels/R050324A/-1/0//10/1/3:0/51/1//0/0/0"
+#url = "https://www.kensakusystem.jp/takahama/cgi-bin3/r_Speakers.exe?bnp0cuv0jx8u44iels/R050324A/-1/0//10/1/3:0/51/1//0/0/0"
+# R5_2_1
+url = "https://www.kensakusystem.jp/takahama/cgi-bin3/r_Speakers.exe?bnp0cuv0jx8u44iels/R050331A/0/0//10/1/2:0/280/1//0/0/0"
+# R5_3_1
+#url = "https://www.kensakusystem.jp/takahama/cgi-bin3/r_Speakers.exe?bnp0cuv0jx8u44iels/R050509A/0/0//10/1/2:0/281/1//0/0/0"
+# R5_4_1
+#url = "https://www.kensakusystem.jp/takahama/cgi-bin3/r_Speakers.exe?bnp0cuv0jx8u44iels/R050606A/0/0//10/1/2:0/282/1//0/0/0"
+# R5_4_2
+#url = "https://www.kensakusystem.jp/takahama/cgi-bin3/r_Speakers.exe?bnp0cuv0jx8u44iels/R050608A/0/0//10/1/2:0/283/1//0/0/0"
+# R5_4_3
+#url = "https://www.kensakusystem.jp/takahama/cgi-bin3/r_Speakers.exe?bnp0cuv0jx8u44iels/R050620A/0/0//10/1/2:0/284/1//0/0/0"
+
 response = requests.get(url)
 soup = BeautifulSoup(response.content, 'html.parser')
 

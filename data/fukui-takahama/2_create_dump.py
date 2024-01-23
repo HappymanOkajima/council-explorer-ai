@@ -26,7 +26,7 @@ statement_number = 0
 with open('code.txt', 'r') as f, open('dump.csv', 'a',encoding="utf-8") as outfile:
 
     header = '"meeting_name","statement_number","speaker_role","speaker_name","agenda_numbers","content","source"\n'
-    print(header)
+    # print(header)
     outfile.write(header)
     outfile.flush()
 
@@ -34,6 +34,10 @@ with open('code.txt', 'r') as f, open('dump.csv', 'a',encoding="utf-8") as outfi
         statement_number += 1
         code_part, original_link = line.strip().split(',')
         fileName, startPos = code_part.split('/')
+        # startPosが数値でない場合、以降の処理をスキップ
+        if not startPos.isdigit() or startPos == '0':
+            continue
+        
         data = {
             "Code": "bnp0cuv0jx8u44iels",
             "fileName": fileName,
@@ -42,11 +46,13 @@ with open('code.txt', 'r') as f, open('dump.csv', 'a',encoding="utf-8") as outfi
             "searchMode": "1",
             "FUNC": ""
         }
+        print(data)
 
         response = requests.post(post_url, data=data)
         soup = BeautifulSoup(response.text, 'html.parser')
         content = '\n'.join([line.strip() for line in soup.get_text().splitlines() if line.strip()])
         first_line = content.split('\n')[0].strip()
+        print(content)
         meeting_name, speaker = first_line.rsplit(' ', 1)
         agenda_numbers = extract_agenda_numbers(content)
         speaker_role, speaker_name = split_speaker_info(speaker)

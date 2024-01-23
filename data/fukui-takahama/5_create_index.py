@@ -1,10 +1,10 @@
 import os
 import ast
 from dotenv import load_dotenv
-from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain.vectorstores import Pinecone
+from langchain_openai import OpenAIEmbeddings
+from langchain_community.vectorstores import Pinecone
 import pinecone
-from langchain.document_loaders.base import Document
+from langchain_core.documents import Document
 
 
 load_dotenv()
