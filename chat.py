@@ -184,7 +184,7 @@ if chat_prompt := st.chat_input("話題についての質問や相談をどう�
         token_max = 15500
     elif openai_model == 'gpt-4':
         token_max = 7500
-    elif openai_model.startswith('gpt-4-'):
+    elif openai_model.startswith('gpt-4-') or openai_model == 'gpt-4o':
         token_max = 128000
     else:
         token_max = 3500
