@@ -48,31 +48,18 @@ def _initialize(callback):
     db, chain = _create_objects(index_name, callback)
     return db, chain
 
-def _retrieve_documents(db, question, filter=None, k=None):
+def answer_by_self_query(question, callback):
     """
-    質問に関連するドキュメントをデータベースから取得する関数。
+    ドキュメントから質問に答える関数。
 
     引数:
-    db -- データベース
     question -- ユーザーからの質問
-    filter -- ドキュメントのフィルタリング条件（オプション）
-    k -- 取得するドキュメントの数（オプション）
+    callback -- コールバック関数
     """
 
-    # フィルタとkが指定されている場合
-    if filter and k:
-        # データベースの類似性検索機能を使用して、フィルタに一致する上位kのドキュメントを取得
-        docs = db.similarity_search(question, k=k, filter=filter)
-    else:
-        # フィルタやkが指定されていない場合、LLMRetrieverを使用して関連するドキュメントを取得
-        retriever = LLMRetriever(db=db, llm=ChatOpenAI(model=openai_model, temperature=0))
-        docs = retriever.get_relevant_documents(question)
-    # 取得したドキュメントを返す
-    return docs
-
-def answer_by_self_query(question, callback):
     db, chain = _initialize(callback)
-    docs = _retrieve_documents(db, question)
+    retriever = LLMRetriever(db=db, llm=ChatOpenAI(model=openai_model, temperature=0))
+    docs = retriever.get_relevant_documents(question)
     context = "\n".join([doc.page_content for doc in docs])
     chain.predict(context=context, topic=question)
     return docs
@@ -90,8 +77,9 @@ def answer_by_filter(question, filter, k, callback):
 
     # データベースとチェーンを初期化
     db, chain = _initialize(callback)
-    # フィルタリング条件と一致するドキュメントを取得
-    docs = _retrieve_documents(db, question, filter=filter, k=k)
+
+    # データベースの類似性検索機能を使用して、フィルタに一致する上位kのドキュメントを取得
+    docs = db.similarity_search(question, k=k, filter=filter)
     # 取得したドキュメントの内容を連結
     context = "\n".join([doc.page_content for doc in docs])
     # 連結したドキュメントの内容と質問を元に予測を行う
