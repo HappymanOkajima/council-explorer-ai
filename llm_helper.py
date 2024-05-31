@@ -8,21 +8,12 @@ from langchain_pinecone import PineconeVectorStore
 from langchain_openai import ChatOpenAI
 from langchain.chains import LLMChain
 from llm_retriver import LLMRetriever
+from langchain_core.runnables import RunnablePassthrough
 
 load_dotenv()
 openai_model = os.environ.get("OPENAI_MODEL","gpt-4")
 
-def _initialize_environment():
-    pc = Pinecone(
-        api_key=os.environ.get("PINECONE_API_KEY"),
-    )
-    index_name = os.environ.get("PINECONE_INDEX")
-    return index_name
-
-def _create_objects(index_name, callback):
-    embeddings = OpenAIEmbeddings()
-    db = PineconeVectorStore.from_existing_index(index_name, embeddings)
-
+def _create_chain(callback):
     prompt_template = """コンテキストにある情報のみを用いて、トピックに対応する日本語の回答をしてください。
     Context: {context}
     Topic: {topic}
@@ -39,13 +30,19 @@ def _create_objects(index_name, callback):
         # max_tokens=1500,
         temperature=0.0,
     )
-    chain = LLMChain(llm=llm, prompt=PROMPT, verbose=True)
+    chain = PROMPT | llm
     
-    return db, chain
+    return chain
 
 def _initialize(callback):
-    index_name = _initialize_environment()
-    db, chain = _create_objects(index_name, callback)
+    pc = Pinecone(
+        api_key=os.environ.get("PINECONE_API_KEY"),
+    )
+    index_name = os.environ.get("PINECONE_INDEX")
+    embeddings = OpenAIEmbeddings()
+    db = PineconeVectorStore.from_existing_index(index_name, embeddings)
+    
+    chain = _create_chain(callback)
     return db, chain
 
 def answer_by_self_query(question, callback):
@@ -61,7 +58,7 @@ def answer_by_self_query(question, callback):
     retriever = LLMRetriever(db=db, llm=ChatOpenAI(model=openai_model, temperature=0))
     docs = retriever.get_relevant_documents(question)
     context = "\n".join([doc.page_content for doc in docs])
-    chain.predict(context=context, topic=question)
+    chain.invoke({"context": context, "topic": question})
     return docs
 
 def answer_by_filter(question, filter, k, callback):
@@ -83,7 +80,8 @@ def answer_by_filter(question, filter, k, callback):
     # 取得したドキュメントの内容を連結
     context = "\n".join([doc.page_content for doc in docs])
     # 連結したドキュメントの内容と質問を元に予測を行う
-    chain.predict(context=context, topic=question)
+    chain.invoke({"context": context, "topic": question})
+    
     # 取得したドキュメントを返す
     return docs
 
@@ -94,6 +92,3 @@ class StreamHandler(StreamingStdOutCallbackHandler):
 
 if __name__ == "__main__":
     res = answer_by_self_query("高浜町の議会の概要",StreamHandler())
-    print("-------")
-    print(res)
-    print(len(res))
