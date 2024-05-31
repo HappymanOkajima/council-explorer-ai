@@ -34,16 +34,15 @@ def _create_chain(callback):
     
     return chain
 
-def _initialize(callback):
-    pc = Pinecone(
+def _initialize_vectorstore():
+    Pinecone(
         api_key=os.environ.get("PINECONE_API_KEY"),
     )
     index_name = os.environ.get("PINECONE_INDEX")
     embeddings = OpenAIEmbeddings()
     db = PineconeVectorStore.from_existing_index(index_name, embeddings)
     
-    chain = _create_chain(callback)
-    return db, chain
+    return db
 
 def answer_by_self_query(question, callback):
     """
@@ -53,8 +52,10 @@ def answer_by_self_query(question, callback):
     question -- ユーザーからの質問
     callback -- コールバック関数
     """
-
-    db, chain = _initialize(callback)
+    # データベースとチェーンを初期化
+    db = _initialize_vectorstore()
+    chain = _create_chain(callback)
+    
     retriever = LLMRetriever(db=db, llm=ChatOpenAI(model=openai_model, temperature=0))
     docs = retriever.get_relevant_documents(question)
     context = "\n".join([doc.page_content for doc in docs])
@@ -73,7 +74,8 @@ def answer_by_filter(question, filter, k, callback):
     """
 
     # データベースとチェーンを初期化
-    db, chain = _initialize(callback)
+    db = _initialize_vectorstore()
+    chain = _create_chain(callback)
 
     # データベースの類似性検索機能を使用して、フィルタに一致する上位kのドキュメントを取得
     docs = db.similarity_search(question, k=k, filter=filter)
