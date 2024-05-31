@@ -6,7 +6,7 @@ name = "pypi"
 [packages]
 openai = "*"
 langchain = "*"
-pinecone-client = "==2.2.4"
+pinecone-client = "*"
 python-dotenv = "*"
 embeddings = "*"
 playwright = "*"
@@ -17,6 +17,7 @@ lark = "*"
 langchain-community = "*"
 langchain-openai = "*"
 beautifulsoup4 = "*"
+langchain-pinecone = "*"
 
 [dev-packages]
 

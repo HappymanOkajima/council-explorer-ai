@@ -3,7 +3,8 @@ from langchain.prompts import PromptTemplate
 from dotenv import load_dotenv
 from langchain_openai.embeddings import OpenAIEmbeddings
 from langchain_community.vectorstores import Pinecone
-import pinecone
+from pinecone import Pinecone 
+from langchain_pinecone import PineconeVectorStore
 from langchain_openai import ChatOpenAI
 from langchain.chains import LLMChain
 from llm_retriver import LLMRetriever
@@ -12,16 +13,15 @@ load_dotenv()
 openai_model = os.environ.get("OPENAI_MODEL","gpt-4")
 
 def _initialize_environment():
-    pinecone.init(
+    pc = Pinecone(
         api_key=os.environ.get("PINECONE_API_KEY"),
-        environment=os.environ.get("PINECONE_ENVIRONMENT")
     )
     index_name = os.environ.get("PINECONE_INDEX")
     return index_name
 
 def _create_objects(index_name, callback):
     embeddings = OpenAIEmbeddings()
-    db = Pinecone.from_existing_index(index_name, embeddings)
+    db = PineconeVectorStore.from_existing_index(index_name, embeddings)
 
     prompt_template = """コンテキストにある情報のみを用いて、トピックに対応する日本語の回答をしてください。
     Context: {context}
@@ -40,6 +40,7 @@ def _create_objects(index_name, callback):
         temperature=0.0,
     )
     chain = LLMChain(llm=llm, prompt=PROMPT, verbose=True)
+    
     return db, chain
 
 def _initialize(callback):
@@ -97,3 +98,14 @@ def answer_by_filter(question, filter, k, callback):
     chain.predict(context=context, topic=question)
     # 取得したドキュメントを返す
     return docs
+
+from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
+class StreamHandler(StreamingStdOutCallbackHandler):
+    def on_llm_new_token(self, token: str, **kwargs) -> None:
+        print(token, end='', flush=True)
+
+if __name__ == "__main__":
+    res = answer_by_self_query("高浜町の議会の概要",StreamHandler())
+    print("-------")
+    print(res)
+    print(len(res))

@@ -6,8 +6,8 @@ from langchain.chains.query_constructor.base import AttributeInfo
 import os
 from dotenv import load_dotenv
 from langchain_openai.embeddings import OpenAIEmbeddings
-from langchain_community.vectorstores import Pinecone
-import pinecone
+from langchain_pinecone import PineconeVectorStore
+from pinecone import Pinecone
 
 class LLMRetriever:
     def __init__(self, db=None, llm=None):
@@ -17,21 +17,21 @@ class LLMRetriever:
         if self.db is None or self.llm is None:
             load_dotenv()
             self.api_key = os.environ.get("PINECONE_API_KEY")
-            self.environment = os.environ.get("PINECONE_ENVIRONMENT")
             self.index_name = os.environ.get("PINECONE_INDEX")
             self._initialize_resources()
 
         self._init_retriever()
 
     def _initialize_resources(self):
-        pinecone.init(
-            api_key=self.api_key,
-            environment=self.environment
+        pc = Pinecone(
+            api_key=self.api_key
         )
 
         embeddings = OpenAIEmbeddings()
-        self.db = Pinecone.from_existing_index(self.index_name, embeddings)
-        
+        self.db = PineconeVectorStore.from_existing_index(
+            index_name=self.index_name,
+            embedding=embeddings
+            )
         self.llm = OpenAI(temperature=0)
 
     def _init_retriever(self):
@@ -88,13 +88,12 @@ class LLMRetriever:
     def get_relevant_documents(self, query):
         pre_query = "議長の発言でない、"
         post_query = "（件数は20件）"
-        return self.retriever.get_relevant_documents(pre_query + query + post_query)
+        return self.retriever.invoke(pre_query + query + post_query)
       
 if __name__ == "__main__":
     retriever = LLMRetriever()
     
     res = retriever.get_relevant_documents("町長の発言")
-    # res = retriever.get_relevant_documents("議長の発言でない、議案番号3が含まれる話題を要約して")
     print("-------")
     print(res)
     print(len(res))
