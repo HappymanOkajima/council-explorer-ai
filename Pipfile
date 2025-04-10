@@ -6,7 +6,7 @@ name = "pypi"
 [packages]
 openai = "*"
 langchain = "*"
-pinecone-client = "*"
+pinecone = "*"
 python-dotenv = "*"
 embeddings = "*"
 playwright = "*"
